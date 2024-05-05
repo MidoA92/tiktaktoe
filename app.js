@@ -1,9 +1,12 @@
-const table= document.getElementById('#table');
+const table = document.getElementById('table');
 const fields = document.getElementsByClassName('field');
 const restartBtn = document.getElementById('restartBtn');
-const players=['X, O'];
-let currentPlayer= players[0];
 
+const players = ['X', 'O'];
+let currentPlayer = players[0];
+
+let fieldsWithX = [];
+let fieldsWithO = [];
 
 const winCombinations = [
     [0, 1, 2],
@@ -16,33 +19,42 @@ const winCombinations = [
     [2, 4, 6]
 ];
 
-for (let i = 0; i < fields.length; i++) {
-    fields[i].addEventListener('click', function() {
-        if (!this.innerHTML) {
-            this.innerHTML = currentPlayer;
-            checkWinner(); 
-            currentPlayer = currentPlayer === players[0] ? players[1] : players[0];
-        }
-    });
-}
-
-function checkWinner() {
-    for (let combination of winCombinations) {
-        const [a, b, c] = combination;
-        if (fields[a].innerHTML && fields[a].innerHTML === fields[b].innerHTML && fields[a].innerHTML === fields[c].innerHTML) {
-            alert(`${fields[a].innerHTML} wins!`);
-            resetGame();
-            return;
-        }
+function markField(fieldId) {
+    let field = document.getElementById(fieldId);
+    field.innerHTML = currentPlayer;
+    if (currentPlayer === 'X') {
+        fieldsWithX.push(fieldId);
+    } else {
+        fieldsWithO.push(fieldId);
     }
-};
-
+    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+    checkGameStatus(); 
+}
 
 function resetGame() {
     for (let i = 0; i < fields.length; i++) {
         fields[i].innerHTML = '';
     }
-    currentPlayer = players[0]; 
+    currentPlayer = players[0];
+    fieldsWithX = [];
+    fieldsWithO = [];
 }
 
 restartBtn.addEventListener('click', resetGame);
+
+function checkGameStatus() {
+    for (let i = 0; i < winCombinations.length; i++) {
+        let combo = winCombinations[i];
+        let hasX = combo.every((index) => fieldsWithX.includes('field' + (index + 1)));
+        let hasO = combo.every((index) => fieldsWithO.includes('field' + (index + 1)));
+        if (hasX) {
+            alert("X wins!");
+            resetGame(); 
+            return;
+        } else if (hasO) {
+            alert("O wins!");
+            resetGame();
+            return;
+        }
+    }
+}
